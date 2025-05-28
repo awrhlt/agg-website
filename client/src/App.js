@@ -1,81 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import HomePage from './components/HomePage';
+import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage'; // AJOUTEZ CETTE LIGNE
 import './App.css';
 
-// Composants
-import Login from './components/Login';
-import Register from './components/Register';
-import Dashboard from './components/Dashboard';
-import Navbar from './components/Navbar';
-
 function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // Vérifier si l'utilisateur est connecté au chargement
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-    }
-    setLoading(false);
-  }, []);
-
-  const handleLogin = (userData, token) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-  };
-
-  if (loading) {
-    return (
-      <div className="loading">
-        <h2>Chargement...</h2>
-      </div>
-    );
-  }
-
   return (
     <Router>
       <div className="App">
-        {user && <Navbar user={user} onLogout={handleLogout} />}
-        
+        <Navbar />
         <Routes>
-          {/* Routes publiques */}
-          <Route 
-            path="/login" 
-            element={
-              user ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />
-            } 
-          />
-          <Route 
-            path="/register" 
-            element={
-              user ? <Navigate to="/dashboard" /> : <Register onLogin={handleLogin} />
-            } 
-          />
-          
-          {/* Routes protégées */}
-          <Route 
-            path="/dashboard" 
-            element={
-              user ? <Dashboard user={user} /> : <Navigate to="/login" />
-            } 
-          />
-          
-          {/* Route par défaut */}
-          <Route 
-            path="/" 
-            element={<Navigate to={user ? "/dashboard" : "/login"} />} 
-          />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} /> {/* CHANGEZ CETTE LIGNE */}
+          <Route path="/dashboard-client" element={<div className="p-8 text-center">Dashboard Client - En développement</div>} />
+          <Route path="/dashboard-consultant" element={<div className="p-8 text-center">Dashboard Consultant - En développement</div>} />
         </Routes>
       </div>
     </Router>

@@ -1,21 +1,83 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Menu, X, UserCircle, BarChart3 } from 'lucide-react';
 
-const Navbar = ({ user, onLogout }) => {
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <nav className="navbar">
-      <div className="nav-content">
-        <div className="nav-left">
-          <h1>Bilans de Compétences</h1>
+    <nav className="bg-blue-600 text-white shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          {/* Logo et titre */}
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center space-x-2">
+              <BarChart3 size={32} className="text-blue-200" />
+              <span className="text-xl font-bold">BilanPro</span>
+            </Link>
+          </div>
+
+          {/* Menu desktop */}
+          <div className="hidden md:flex items-center space-x-8">
+            <Link 
+              to="/" 
+              className="hover:text-blue-200 transition-colors duration-200"
+            >
+              Accueil
+            </Link>
+            <Link 
+              to="/login" 
+              className="hover:text-blue-200 transition-colors duration-200"
+            >
+              Connexion
+            </Link>
+            <Link 
+              to="/register" 
+              className="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition-colors duration-200"
+            >
+              S'inscrire
+            </Link>
+          </div>
+
+          {/* Bouton menu mobile */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-white hover:text-blue-200"
+            >
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
-        
-        <div className="nav-right">
-          <span className="user-info">
-            {user.prenom} {user.nom} ({user.role})
-          </span>
-          <button onClick={onLogout} className="logout-btn">
-            Déconnexion
-          </button>
-        </div>
+
+        {/* Menu mobile */}
+        {isOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-blue-700">
+              <Link 
+                to="/" 
+                className="block px-3 py-2 hover:bg-blue-600 rounded-md"
+                onClick={() => setIsOpen(false)}
+              >
+                Accueil
+              </Link>
+              <Link 
+                to="/login" 
+                className="block px-3 py-2 hover:bg-blue-600 rounded-md"
+                onClick={() => setIsOpen(false)}
+              >
+                Connexion
+              </Link>
+              <Link 
+                to="/register" 
+                className="block px-3 py-2 hover:bg-blue-600 rounded-md"
+                onClick={() => setIsOpen(false)}
+              >
+                S'inscrire
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
