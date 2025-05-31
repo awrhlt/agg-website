@@ -7,10 +7,15 @@ import {
   MessageCircle, 
   CheckCircle, 
   ArrowRight,
-  Star
+  Star 
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext'; // NOUVEL IMPORT
 
 const HomePage = () => {
+  const { isAuthenticated, userType } = useAuth();
+
+  console.log('HomePage rendu. IsAuthenticated:', isAuthenticated, 'UserType:', userType);
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -26,18 +31,22 @@ const HomePage = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
-                to="/register" 
+                // Conditionne la destination du lien "Commencer mon bilan"
+                to={isAuthenticated && userType === 'client' ? "/client/assessment" : "/register"}
                 className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center"
               >
                 Commencer mon bilan
                 <ArrowRight className="ml-2" size={20} />
               </Link>
-              <Link 
-                to="/login" 
-                className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors duration-200"
-              >
-                Se connecter
-              </Link>
+              {/* Le lien "Se connecter" n'est affiché que si l'utilisateur n'est pas authentifié */}
+              {!isAuthenticated && (
+                <Link 
+                  to="/login" 
+                  className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors duration-200"
+                >
+                  Se connecter
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -162,7 +171,8 @@ const HomePage = () => {
             Rejoignez des centaines de professionnels qui ont transformé leur carrière
           </p>
           <Link 
-            to="/register" 
+            // Conditionne la destination du lien "Commencer maintenant"
+            to={isAuthenticated && userType === 'client' ? "/client/assessment" : "/register"} 
             className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors duration-200 inline-flex items-center"
           >
             Commencer maintenant

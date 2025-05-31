@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../services/api'; // Importez le service d'authentification
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -8,10 +9,11 @@ const RegisterPage = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    userType: 'client'
+    userType: 'client' // Valeur par défaut pour le radio button
   });
 
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,17 +23,53 @@ const RegisterPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Inscription:', formData);
-    alert('Inscription réussie ! (Simulation)');
+    setErrors({});
+
+    // --- Validation côté client ---
+    const newErrors = {};
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Les mots de passe ne correspondent pas.';
+    }
+    if (formData.password.length < 6) {
+      newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères.';
+    }
+    // Ajoutez d'autres validations si nécessaire
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    // --- MODIFICATION ICI : ENVOYER 'role' AU LIEU DE 'userType' ---
+    try {
+      const dataToSend = {
+        prenom: formData.firstName,
+        nom: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        role: formData.userType // <-- C'est LA MODIFICATION CLÉ !
+        // N'envoyez pas 'confirmPassword' au backend
+      };
+      
+      const response = await authService.register(dataToSend);
+      
+      console.log('Inscription réussie:', response.data);
+      alert('Inscription réussie ! Vous pouvez maintenant vous connecter.');
+      navigate('/login');
+
+    } catch (err) {
+      console.error('Erreur d\'inscription:', err.response ? err.response.data : err);
+      setErrors({ general: err.response?.data?.message || 'Une erreur est survenue lors de l\'inscription.' });
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 flex items-center justify-center px-4 py-8">
       <div className="max-w-md w-full space-y-8">
         <div className="bg-white rounded-xl shadow-lg p-8">
-          {/* Header */}
+          {/* ... Le reste de votre code JSX reste inchangé ... */}
           <div className="text-center">
             <div className="mx-auto h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
               <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,9 +84,9 @@ const RegisterPage = () => {
             </p>
           </div>
 
-          {/* Formulaire */}
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            {/* Type d'utilisateur */}
+            {errors.general && <p className="text-red-500 text-sm text-center">{errors.general}</p>}
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Je suis :
@@ -130,6 +168,7 @@ const RegisterPage = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="jean.dupont@email.com"
               />
+              {errors.email && <p className="text-red-500 text-xs italic mt-1">{errors.email}</p>}
             </div>
 
             {/* Mot de passe */}
@@ -150,6 +189,7 @@ const RegisterPage = () => {
               <p className="mt-1 text-xs text-gray-500">
                 Au moins 6 caractères
               </p>
+              {errors.password && <p className="text-red-500 text-xs italic mt-1">{errors.password}</p>}
             </div>
 
             {/* Confirmation mot de passe */}
@@ -167,6 +207,7 @@ const RegisterPage = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="••••••••"
               />
+              {errors.confirmPassword && <p className="text-red-500 text-xs italic mt-1">{errors.confirmPassword}</p>}
             </div>
 
             {/* Conditions */}

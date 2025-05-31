@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const { User } = require('../models'); // <-- MODIFICATION CLÉ ICI : Importe le modèle User depuis l'index des modèles
 const router = express.Router();
 
 // Inscription
@@ -10,12 +10,13 @@ router.post('/register', async (req, res) => {
     const { email, password, nom, prenom, role } = req.body;
 
     // Vérifier si l'utilisateur existe déjà
+    // User est maintenant le modèle Sequelize correct
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: 'Cet email est déjà utilisé' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); // hash mdp 
+    const hashedPassword = await bcrypt.hash(password, 10); // hash mdp
 
     const user = await User.create({
       email,
@@ -25,7 +26,7 @@ router.post('/register', async (req, res) => {
       role: role || 'client'
     });
 
-    res.status(201).json({ 
+    res.status(201).json({
       message: 'Utilisateur créé avec succès',
       user: { id: user.id, email: user.email, nom: user.nom, prenom: user.prenom, role: user.role }
     });
@@ -40,6 +41,7 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // User est maintenant le modèle Sequelize correct
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(400).json({ message: 'Email ou mot de passe incorrect' });
